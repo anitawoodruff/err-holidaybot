@@ -1,0 +1,9 @@
+[Core]
+Name = HolidayBot
+Module = holidaybot
+
+[Python]
+Version=3
+
+[Documentation]
+Description = Bot which knows who's on holiday at the moment
