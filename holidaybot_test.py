@@ -18,9 +18,8 @@ TEST_COMPANY = 'reynholm-industries'
 TODAY = date.today().strftime('%Y-%m-%d')
 TOMORROW = (date.today() + timedelta(1)).strftime('%Y-%m-%d')
 
-@route('/hello')
-def hello_handler():
-    return "hello world"
+## TODO Set up custom reponses within each test so that the
+## expected behaviour under test is more obvious.
 
 @route("/v2/user")
 def hipchat_request_handler():
@@ -103,12 +102,12 @@ class TestHolidayBot(object):
     loglevel = logging.ERROR
 
     @classmethod
-    def setup_class(self):
-        self.GREENLET = gevent.spawn(run_fn)
+    def setup_class(cls):
+        cls.GREENLET = gevent.spawn(run_fn)
 
     @classmethod
-    def teardown_class(self):
-        self.GREENLET.kill()
+    def teardown_class(cls):
+        cls.GREENLET.kill()
 
     def test_whos_out(self, testbot):
         push_message("who's out?")
@@ -172,6 +171,11 @@ class TestHolidayBot(object):
     def test_no_reply_to_gobbledigook(self, testbot):
         push_message('jklcjsklcs')
         check_no_reply()
+
+    def test_hello(self, testbot):
+        # check that no errors are thrown
+        push_message("!hello")
+        check_reply("Hello!")
 
 def check_reply(expected):
     try:

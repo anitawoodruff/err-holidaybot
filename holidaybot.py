@@ -16,7 +16,20 @@ whosout_source = join(realpath(os.path.dirname(__file__)), './whosout.py')
 whosout = imp.load_source('whosout', whosout_source)
 
 WHERES_X_PATTERN = r"^where('?s| is) (@?[^?]+?)( today)?(\?|$)"
-IS_X_IN_PATTERN = r"^is (@?.*) (in|out|here|away|at work|on holiday|on vacation|on leave)( today)?(\?)?$"
+IS_X_IN_PATTERN = r"""^is (@?.*) (in|out|here|away|at work|on holiday|on
+ vacation|on leave)( today)?(\?)?$"""
+
+BAMBOOHR_APIKEY_KEY = 'BAMBOOHR_APIKEY'
+BAMBOOHR_COMPANY_KEY = 'BAMBOOHR_COMPANY'
+BAMBOOHR_HOST_KEY = 'BAMBOOHR_HOST'
+CONFIGURATION_TEMPLATE = {BAMBOOHR_APIKEY_KEY: 'changeme',
+                          BAMBOOHR_COMPANY_KEY: 'changeme',
+                          BAMBOOHR_HOST_KEY: 'https://api.bamboohr.com'}
+
+NO_CREDENTIALS_RESPONSE = "Unable to check. An admin needs to configure credentials"
+
+BambooHRConfig = namedtuple("BambooConfig", "host company api_key")
+HipchatConfig = namedtuple("HipchatConfig", "host token")
 
 class HolidayBot(BotPlugin):
     """Plugin for querying who is on leave right now"""
@@ -25,18 +38,41 @@ class HolidayBot(BotPlugin):
         super(HolidayBot, self).__init__()
         config = configparser.ConfigParser()
         if os.getenv('HOLIDAY_BOT_TEST_RUN') == 'True':
-            config.read('./test_credentials.cfg')
+            path = './test_credentials.cfg'
+            print("Test run detected - loading test credentials")
         else:
-            config.read('./credentials.cfg')
-        bamboo_api_key = config.get('BambooHR', 'ApiKey')
-        bamboo_host = config.get('BambooHR', 'Host')
-        bamboo_company = config.get('BambooHR', 'Company')
-        hipchat_host = config.get('HipChat', 'Host')
-        hipchat_token = config.get('HipChat', 'Token')
-        self.people = self.get_hipchat_users(hipchat_host, hipchat_token)
-        self.checker = whosout.WhosOutChecker(bamboo_api_key,
-                                              bamboo_company,
-                                              bamboo_host)
+            path = './holidaybot_credentials.cfg'
+        if (os.path.isfile(path)):
+            with open(path) as f:
+                bamboo_config = self.parse_bamboo_credentials(f)
+                self.checker = whosout.WhosOutChecker(
+                    bamboo_config.api_key,
+                    bamboo_config.company,
+                    bamboo_config.host)
+            with open(path) as f:
+                hipchat_config = self.parse_hipchat_credentials(f)
+                self.people = self.get_hipchat_users(
+                    hipchat_config.host,
+                    hipchat_config.token)
+        else:
+            print ("Could not locate credentials file at " + path)
+            self.people = {}
+            self.checker = None
+
+    def parse_bamboo_credentials(self, f):
+        config = configparser.ConfigParser()
+        config.read_file(f)
+        host = config.get('BambooHR', 'Host')
+        company = config.get('BambooHR', 'Company')
+        api_key = config.get('BambooHR', 'ApiKey')
+        return BambooHRConfig(host, company, api_key)
+
+    def parse_hipchat_credentials(self, f):
+        config = configparser.ConfigParser()
+        config.read_file(f)
+        host = config.get('HipChat', 'Host')
+        token = config.get('HipChat', 'Token')
+        return HipchatConfig(host, token)
 
     def get_hipchat_users(self, hipchat_host, hipchat_token):
         url = hipchat_host + "/v2/user?auth_token=" + hipchat_token
@@ -48,10 +84,26 @@ class HolidayBot(BotPlugin):
             if person['mention_name'].lower() == mention.lower():
                 return person['name']
 
+    def get_configuration_template(self):
+        return CONFIGURATION_TEMPLATE
+
+    def initialise_checker_from_config_if_possible(self):
+        if self.config is None:
+            return
+        # Check it has been changed from default
+        for x in self.config:
+            if self.config == CONFIGURATION_TEMPLATE:
+                return
+        self.checker = whosout.WhosOutChecker(
+            self.config[BAMBOOHR_APIKEY_KEY],
+            self.config[BAMBOOHR_COMPANY_KEY],
+            self.config[BAMBOOHR_HOST_KEY])
+
     @botcmd
     def hello(self, msg, args):
         """Say hello to HolidayBot"""
-        return "Hello! Ask me \"who's out\" or \"is NAME in?\" to check up on your colleagues"
+        return """Hello! Ask me \"who's out\" or \"is NAME in?\" to check up on
+ your colleagues"""
 
     @re_botcmd(pattern=WHERES_X_PATTERN, prefixed=False, flags=re.IGNORECASE)
     def wheres_x(self, msg, match):
@@ -71,6 +123,11 @@ class HolidayBot(BotPlugin):
         """Query if a specific person is here or on holiday"""
         if debug:
             yield "where_is called with args: " + name
+        if self.checker is None:
+            self.initialise_checker_from_config_if_possible()
+            if self.checker is None:
+                yield NO_CREDENTIALS_RESPONSE
+                return
         if name.startswith('@'):
             name = self.get_name_from_mention(name.lstrip('@'))
         where_is_results = self.checker.where_is(name)
@@ -79,6 +136,10 @@ class HolidayBot(BotPlugin):
     @re_botcmd(pattern=r"^who('?s| is)[ ]?(out|away|around|on leave|on vaction|on holiday)( today)?(\?)?$", prefixed=False, flags=re.IGNORECASE)
     def whos_out(self, msg, match):
         """Say who is away today"""
+        if self.checker is None:
+            self.initialise_checker_from_config_if_possible()
+            if self.checker is None:
+                return NO_CREDENTIALS_RESPONSE
         return whosout.build_whosout_reply(self.checker.get_whos_out())
 
     @re_botcmd(pattern=r"(?u)@([\w]+)([^\w]|$)",
@@ -86,6 +147,8 @@ class HolidayBot(BotPlugin):
                prefixed=False)
     def listen_for_at_mentions(self, msg, matches):
         "heard an @mention - i'll tell you if they're out"
+        if self.checker is None:
+            return
         if re.match(IS_X_IN_PATTERN, msg.body) is not None \
            or re.match(WHERES_X_PATTERN, msg.body) is not None:
             return
