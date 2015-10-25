@@ -27,9 +27,9 @@ To install, paste the following command in a private chat with the bot from a bo
 ### Configuration
 
 To be of any  use, HolidayBot needs to be configured with BambooHR credentials with access to view who's out.
-Optionally, you can also provide it with HipChat credentials so it can pick up on @mentions and pipe up if someone is mentioned who is away.
+Optionally, you can also provide it with HipChat credentials so it can pick up on @mentions and pipe up if someone is mentioned who is away. There are two ways to configure the plugin, as outlined below.
 
-#### Configuring from file
+#### Option 1: Configuring from file
 
 If you have access to the machine your errbot is running on, you can simply provide a `holidaybot_credentials.cfg` in the same directory where you start up the bot, containing the following: (the HipChat section is optional)
 
@@ -47,9 +47,9 @@ Replace the words in all caps as follows:
 - `COMPANY_NAME` - should match the first part of the BambooHR site for your company (i.e. xxx for xxx.bamboohr.com).
 - `HIPCHAT_API_TOKEN` (optional) - a HipChat API token for looking up user handles (you can use the same token your bot uses to connect to HipChat)
     
-#### Configuring manually
+#### Option 2: Configuring manually
 
-Paste the following command in a private chat with the bot from a bot admin account:
+Paste the following command in a private chat with the bot from a bot admin account (replacing 'changeme' with the correct values, as described in Option 1):
 
     !config HolidayBot {
       'BAMBOOHR_APIKEY': 'changeme',
