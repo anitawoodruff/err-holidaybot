@@ -1,16 +1,16 @@
 # err-holidaybot
 
-An errbot plugin for querying whether colleagues are on holiday using the BambooHR API.
+An [errbot](http://errbot.net/) plugin for querying whether colleagues are on holiday using the [BambooHR API](http://www.bamboohr.com/api/documentation/).
 
-Also contains a standalone python3 script for querying who's out directly from command line, without the need for a bot.
+Also contains a standalone Python3 script for querying who's out directly from command line, without the need for a bot.
 
-## Usage - Bot plugin
+## Usage - errbot plugin
 
 Ask it "who's out?" to get a list of who is currently on leave, or "is X in?" to find out if somebody is away and if so when they will be back. (It accepts a few variants on these phrases, try and see).
 
 If connecting to HipChat, the plugin can optionally be configured to look up colleagues from their HipChat handles and pipe up if someone is @mentioned who is currently on leave.
 
-## Usage - Command line tool
+## Usage - command line tool
 
 The standalone Python3 script is at `whosout.py` - run `./whosout.py --help` for info. Note, you will need a `holidaybot_credentials.cfg` file as per the 'Configuring from file' section below.
 
