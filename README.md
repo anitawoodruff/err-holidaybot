@@ -1,13 +1,20 @@
 # err-holidaybot
+
 An errbot plugin for querying whether colleagues are on holiday using the BambooHR API.
 
-## Usage (Errbot plugin)
+Also contains a standalone python3 script for querying who's out directly from command line, without the need for a bot.
 
-The following instructions assume your err bot is set up as per the instructions at http://errbot.net/user_guide/setup/ 
+## Usage
 
-I have only tested this using HipChat, no guarantees it will work with other chat servers.
+Ask it "who's out?" to get a list of who is currently on leave, or "is X in?" to find out if somebody is away and if so when they will be back. (It accepts a few variants on these phrases, try and see).
+
+If connecting to HipChat, the plugin can optionally be configured to look up colleagues from their HipChat handles and pipe up if someone is @mentioned who is currently on leave.
+
+The standalone script is at `whosout.py` - run `./whosout.py --help` for info. Note, you will need a `holidaybot_credentials.cfg` file as per the 'Configuring from file' section below.
 
 ### Installation
+
+The following instructions assume your err bot is set up as per the instructions at http://errbot.net/user_guide/setup/ 
 
 Requirements: Python3 and python module `unidecode` on the machine running your bot.
 
@@ -20,7 +27,7 @@ To install, paste the following command in a private chat with the bot from a bo
 ### Configuration
 
 To be of any  use, HolidayBot needs to be configured with BambooHR credentials with access to view who's out.
-Optionally you can also provide it with HipChat credentials so it can pick up on @mentions and pipe up if someone is mentioned who is away.
+Optionally, you can also provide it with HipChat credentials so it can pick up on @mentions and pipe up if someone is mentioned who is away.
 
 #### Configuring from file
 
@@ -38,7 +45,7 @@ Replace the words in all caps as follows:
 
 - `BAMBOO_API_KEY` - a Bamboo API key with read-access to who's out and the directory of all employees. See the Authentication section at http://www.bamboohr.com/api/documentation/ for how to generate a key (_nb. it implies any user should be able to generate a key but that was not my experience, I had to ask someone with admin rights_)
 - `COMPANY_NAME` - should match the first part of the BambooHR site for your company (i.e. xxx for xxx.bamboohr.com).
-- `HIPCHAT_API_TOKEN` (optional) - a HipChat API token for looking up user handles. If your bot connects to HipChat you can use the same token it uses to connect.
+- `HIPCHAT_API_TOKEN` (optional) - a HipChat API token for looking up user handles (you can use the same token your bot uses to connect to HipChat)
     
 #### Configuring manually
 
