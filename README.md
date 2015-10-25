@@ -4,15 +4,17 @@ An errbot plugin for querying whether colleagues are on holiday using the Bamboo
 
 Also contains a standalone python3 script for querying who's out directly from command line, without the need for a bot.
 
-## Usage
+## Usage - Bot plugin
 
 Ask it "who's out?" to get a list of who is currently on leave, or "is X in?" to find out if somebody is away and if so when they will be back. (It accepts a few variants on these phrases, try and see).
 
 If connecting to HipChat, the plugin can optionally be configured to look up colleagues from their HipChat handles and pipe up if someone is @mentioned who is currently on leave.
 
-The standalone script is at `whosout.py` - run `./whosout.py --help` for info. Note, you will need a `holidaybot_credentials.cfg` file as per the 'Configuring from file' section below.
+## Usage - Command line tool
 
-### Installation
+The standalone Python3 script is at `whosout.py` - run `./whosout.py --help` for info. Note, you will need a `holidaybot_credentials.cfg` file as per the 'Configuring from file' section below.
+
+## Plugin Installation
 
 The following instructions assume your err bot is set up as per the instructions at http://errbot.net/user_guide/setup/ 
 
@@ -24,12 +26,12 @@ To install, paste the following command in a private chat with the bot from a bo
   
 (If you have a custom bot prefix, you will need to replace '!' in the line above with your custom prefix)
 
-### Configuration
+## Configuration
 
 To be of any  use, HolidayBot needs to be configured with BambooHR credentials with access to view who's out.
 Optionally, you can also provide it with HipChat credentials so it can pick up on @mentions and pipe up if someone is mentioned who is away. There are two ways to configure the plugin, as outlined below.
 
-#### Option 1: Configuring from file
+### Option 1: Configuring from file
 
 If you have access to the machine your errbot is running on, you can simply provide a `holidaybot_credentials.cfg` in the same directory where you start up the bot, containing the following: (the HipChat section is optional)
 
@@ -47,7 +49,7 @@ Replace the words in all caps as follows:
 - `COMPANY_NAME` - should match the first part of the BambooHR site for your company (i.e. xxx for xxx.bamboohr.com).
 - `HIPCHAT_API_TOKEN` (optional) - a HipChat API token for looking up user handles (you can use the same token your bot uses to connect to HipChat)
     
-#### Option 2: Configuring manually
+### Option 2: Configuring manually
 
 Paste the following command in a private chat with the bot from a bot admin account (replacing 'changeme' with the correct values, as described in Option 1):
 
