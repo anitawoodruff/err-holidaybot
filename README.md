@@ -10,7 +10,7 @@ Ask it "who's out?" to get a list of who is currently on leave, or "is X in?" to
 
 If connecting to HipChat, the plugin can optionally be configured to look up colleagues from their HipChat handles and pipe up if someone is @mentioned who is currently on leave.
 
-## Usage - Command line tool
+## Usage - Command line tool
 
 The standalone Python3 script is at `whosout.py` - run `./whosout.py --help` for info. Note, you will need a `holidaybot_credentials.cfg` file as per the 'Configuring from file' section below.
 
