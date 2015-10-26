@@ -6,4 +6,4 @@ Module = holidaybot
 Version=3
 
 [Documentation]
-Description = Bot which knows who's on holiday at the moment
+Description = Queries BambooHR to find out who is on holiday
