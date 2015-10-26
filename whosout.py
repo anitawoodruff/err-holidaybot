@@ -100,12 +100,12 @@ def _parse_command_line_args():
         person is on leave atm.")
     parser.add_argument(
         '-c', '--credentials',
-        default='../../credentials.cfg',
+        default='../../holidaybot_credentials.cfg',
         metavar='FILE',
         type=str,
         nargs="?",
         help="""Path to file containing BambooHR credentials. \
-        If not specified, uses ../../credentials.cfg""")
+        If not specified, uses ../../holidaybot_credentials.cfg""")
     parser.add_argument(
         'person_to_check',
         metavar='NAME',
