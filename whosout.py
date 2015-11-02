@@ -52,6 +52,7 @@ class WhosOutChecker(object):
     def where_is(self, name):
         '''Returns a list of (Employee, Leave) pairs for employees matching
         NAME; Leave will be None if the employee is not currently on leave'''
+        print("where_is called with name=", name)
         matching_emps = sorted(
             self._get_employee_ids_from_name(name, self.namesets))
         if len(matching_emps) == 0:

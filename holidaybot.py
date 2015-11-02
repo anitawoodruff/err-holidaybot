@@ -129,7 +129,13 @@ class HolidayBot(BotPlugin):
                 yield NO_CREDENTIALS_RESPONSE
                 return
         if name.startswith('@'):
-            name = self.get_name_from_mention(name.lstrip('@'))
+            emp_name = self.get_name_from_mention(name.lstrip('@'))
+            if emp_name is None:
+                # no matching employee
+                yield whosout.build_whereis_reply(name, [])
+                return
+            else:
+                name = emp_name
         where_is_results = self.checker.where_is(name)
         yield whosout.build_whereis_reply(name, where_is_results)
 

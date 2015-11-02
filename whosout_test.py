@@ -36,6 +36,14 @@ class TestWhosout(unittest.TestCase):
                      Leave(date(2015, 5, 4), date(2015, 5, 4)))]
         self.assertEqual(frozenset(expected), frozenset(whereabouts))
 
+    def test_where_is_unknown(self):
+        result = self.checker.where_is("Polly")
+        self.assertEqual(frozenset(), frozenset(result))
+
+    def test_where_is_none(self):
+        result = self.checker.where_is(None)
+        self.assertEqual(frozenset(), frozenset(result))
+
     def test_build_whosout_reply(self):
         timeoffs = [
             (Employee('Sarah Surely', 'Sarah', 'Surely', None),

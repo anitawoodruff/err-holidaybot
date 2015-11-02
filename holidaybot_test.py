@@ -125,6 +125,10 @@ class TestHolidayBot(object):
         push_message("is Sarah in?")
         check_reply('Sarah Skiver is currently on leave')
 
+    def test_is_x_in_unknown(self, testbot):
+        push_message("is Frieda in?")
+        check_reply("I could not find any employee named Frieda")
+
     def test_is_x_in_using_hipchat_handle(self, testbot):
         push_message("is @SarahSkiver in?")
         check_reply('Sarah Skiver is currently on leave')
@@ -140,6 +144,10 @@ class TestHolidayBot(object):
         check_reply('Holiday Harry is currently on leave')
         push_message("hey there @SarahSkiver")
         check_reply('Sarah Skiver is currently on leave')
+
+    def test_at_mentions_non_existent(self, testbot):
+        push_message('Is @NobodyKnows in?')
+        check_reply('I could not find any employee named @NobodyKnows')
 
     def test_at_mentions_when_in(self, testbot):
         push_message("hey there @Hugo")
