@@ -12,7 +12,7 @@ If connecting to HipChat, the plugin can optionally be configured to look up col
 
 ### Usage - command line tool
 
-The standalone Python3 script is at `whosout.py` - run `./whosout.py --help` for info. Note, you will need a `holidaybot_credentials.cfg` file as per the 'Configuring from file' section below.
+The standalone Python3 script is at `whosout.py` - run `./whosout.py --help` for info. Note, you will need a `holidaybot_credentials.cfg` file containing a BambooHR section, as described in the 'Configuring from file' section below.
 
 ## Plugin Installation
 
@@ -61,3 +61,25 @@ Paste the following command in a private chat with the bot from a bot admin acco
 Again, remember to replace `!` in the above if you have a custom bot prefix.
 
 (Manual HipChat API token configurability coming soon!)
+
+# Running the tests
+
+## Running the whosout tests
+
+From `plugins/holidaybot/` execute
+
+    python3 whosout_test.py
+
+## Running the HolidayBot integration tests
+
+Some dependencies are required. `pip3 install ...`
+
+    gevent (must be at least version 1.1b2)
+    pytest
+
+To run the tests, from `plugins/holidaybot/` :
+
+`HOLIDAY_BOT_TEST_RUN=True py.test holidaybot_test.py -v`
+
+`py.test holidaybot_config_test.py -v`
+
