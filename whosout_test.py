@@ -40,8 +40,8 @@ class TestWhosout(unittest.TestCase):
         result = self.checker.where_is("Polly")
         self.assertEqual(frozenset(), frozenset(result))
 
-    def test_where_is_none(self):
-        result = self.checker.where_is(None)
+    def test_where_is_empty_string(self):
+        result = self.checker.where_is("")
         self.assertEqual(frozenset(), frozenset(result))
 
     def test_build_whosout_reply(self):
