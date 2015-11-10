@@ -9,7 +9,7 @@ import queue
 
 from bottle import route
 from datetime import date, timedelta
-from errbot.backends.test import testbot, push_message, pop_message
+from errbot.backends.test import testbot
 
 TEST_HOST = 'http://localhost:8080'
 TEST_TOKEN = 'testToken'
@@ -110,84 +110,84 @@ class TestHolidayBot(object):
         cls.GREENLET.kill()
 
     def test_whos_out(self, testbot):
-        push_message("who's out?")
-        msg = pop_message(0.2)
+        testbot.push_message("who's out?")
+        msg = testbot.pop_message(0.2)
         assert len(msg) > 0
         assert 'Sarah Skiver:' in msg
         assert 'Charlie Brown:' in msg
         print(msg)
 
     def test_is_x_in_when_in(self, testbot):
-        push_message("is Hugo out?")
-        check_reply('Hugo Boss (hugs) is not on leave')
+        testbot.push_message("is Hugo out?")
+        check_reply('Hugo Boss (hugs) is not on leave', testbot)
 
     def test_is_x_in_when_out(self, testbot):
-        push_message("is Sarah in?")
-        check_reply('Sarah Skiver is currently on leave')
+        testbot.push_message("is Sarah in?")
+        check_reply('Sarah Skiver is currently on leave', testbot)
 
     def test_is_x_in_unknown(self, testbot):
-        push_message("is Frieda in?")
-        check_reply("I could not find any employee named Frieda")
+        testbot.push_message("is Frieda in?")
+        check_reply("I could not find any employee named Frieda", testbot)
 
     def test_is_x_in_using_hipchat_handle(self, testbot):
-        push_message("is @SarahSkiver in?")
-        check_reply('Sarah Skiver is currently on leave')
-        push_message('where is @SarahSkiver?')
-        check_reply('Sarah Skiver is currently on leave')
-        push_message("is @Hugo in?")
-        check_reply('Hugo Boss (hugs) is not on leave')
-        push_message("is @WillSam in?")
-        check_reply('Willem Samuel (Will) is not on leave')
+        testbot.push_message("is @SarahSkiver in?")
+        check_reply('Sarah Skiver is currently on leave', testbot)
+        testbot.push_message('where is @SarahSkiver?')
+        check_reply('Sarah Skiver is currently on leave', testbot)
+        testbot.push_message("is @Hugo in?")
+        check_reply('Hugo Boss (hugs) is not on leave', testbot)
+        testbot.push_message("is @WillSam in?")
+        check_reply('Willem Samuel (Will) is not on leave', testbot)
 
     def test_at_mentions_when_out(self, testbot):
-        push_message('@HolidayHarry')
-        check_reply('Holiday Harry is currently on leave')
-        push_message("hey there @SarahSkiver")
-        check_reply('Sarah Skiver is currently on leave')
+        testbot.push_message('@HolidayHarry')
+        check_reply('Holiday Harry is currently on leave', testbot)
+        testbot.push_message("hey there @SarahSkiver")
+        check_reply('Sarah Skiver is currently on leave', testbot)
 
     def test_at_mentions_non_existent(self, testbot):
-        push_message('Is @NobodyKnows in?')
-        check_reply('I could not find any employee named @NobodyKnows')
+        testbot.push_message('Is @NobodyKnows in?')
+        check_reply('I could not find any employee named @NobodyKnows', testbot)
 
     def test_at_mentions_when_in(self, testbot):
-        push_message("hey there @Hugo")
-        check_no_reply()
+        testbot.push_message("hey there @Hugo")
+        check_no_reply(testbot)
 
     def test_multiple_at_mentions(self, testbot):
-        push_message("can you hear me @Hugo and @SarahSkiver")
-        check_reply('Sarah Skiver is currently on leave')
-        push_message("@SarahSkiver @HolidayHarry")
+        testbot.push_message("can you hear me @Hugo and @SarahSkiver")
+        check_reply('Sarah Skiver is currently on leave', testbot)
+        testbot.push_message("@SarahSkiver @HolidayHarry")
         check_reply(['Sarah Skiver is currently on leave',
-                     'Holiday Harry is currently on leave'])
+                     'Holiday Harry is currently on leave'], testbot)
 
     def test_at_mentions_with_punctuation(self, testbot):
-        push_message("somethinig something (@HolidayHarry)")
-        check_reply('Holiday Harry is currently on leave')
-        push_message("Hello @SarahSkiver.")
-        check_reply('Sarah Skiver is currently on leave')
+        testbot.push_message("somethinig something (@HolidayHarry)")
+        check_reply('Holiday Harry is currently on leave', testbot)
+        testbot.push_message("Hello @SarahSkiver.")
+        check_reply('Sarah Skiver is currently on leave', testbot)
 
     def test_at_mentions_not_case_sensitive(self, testbot):
-        push_message("@SarahSkiver")
-        check_reply('Sarah Skiver is currently on leave')
-        push_message("@sarahskiver")
-        check_reply('Sarah Skiver is currently on leave')
+        testbot.push_message("@SarahSkiver")
+        check_reply('Sarah Skiver is currently on leave', testbot)
+        testbot.push_message("@sarahskiver")
+        check_reply('Sarah Skiver is currently on leave', testbot)
 
     def test_at_mentions_with_accents(self, testbot):
-        push_message("@Zo\xe8")
-        check_reply("Zoe Ball is currently on leave")
+        testbot.push_message("@Zo\xe8")
+        check_reply("Zoe Ball is currently on leave", testbot)
 
     def test_no_reply_to_gobbledigook(self, testbot):
-        push_message('jklcjsklcs')
-        check_no_reply()
+        testbot.push_message('jklcjsklcs')
+        check_no_reply(testbot)
 
     def test_hello(self, testbot):
         # check that no errors are thrown
-        push_message("!hello")
-        check_reply("Hello!")
+        testbot.push_message("!hello")
+        check_reply("Hello!", testbot)
 
-def check_reply(expected):
+def check_reply(expected, testbot):
     try:
-        msg = pop_message(0.1)
+        msg = testbot.pop_message(0.1)
     except queue.Empty:
         pytest.fail('No reply when expecting: ' + expected)
     assert len(msg) > 0
@@ -195,15 +195,15 @@ def check_reply(expected):
         expected = [expected]
     for e in expected:
         assert e in msg
-    check_no_further_reply(msg)
+    check_no_further_reply(msg, testbot)
 
-def check_no_reply():
+def check_no_reply(testbot):
     with pytest.raises(queue.Empty):
-        pytest.fail("Unexpected reply: " + pop_message(0.5))
+        pytest.fail("Unexpected reply: " + testbot.pop_message(0.5))
 
-def check_no_further_reply(previous_reply):
+def check_no_further_reply(previous_reply, testbot):
     with pytest.raises(queue.Empty):
-        msg = pop_message(0.5)
+        msg = testbot.pop_message(0.5)
         if (previous_reply == msg):
             pytest.fail("Duplicate reply: " + msg)
         pytest.fail("Unexpected extra reply: " + msg)
