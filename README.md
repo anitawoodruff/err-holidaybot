@@ -53,12 +53,12 @@ Replace the words in all caps as follows:
 
 Paste the following command in a private chat with the bot from a bot admin account (replacing 'changeme' with the correct values, as described in Option 1):
 
-    !config HolidayBot {
+    ! plugin config HolidayBot {
       'BAMBOOHR_APIKEY': 'changeme',
       'BAMBOOHR_COMPANY': 'changeme',
       'BAMBOOHR_HOST': 'https://api.bamboohr.com'}
 
-Again, remember to replace `!` in the above if you have a custom bot prefix.
+Again, remember to replace or remove `!` in the above if you have a custom bot prefix, or none.
 
 (Manual HipChat API token configurability coming soon!)
 
