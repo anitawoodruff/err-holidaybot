@@ -99,13 +99,34 @@ class TestHolidayBot(object):
         check_reply(["could not find", "Julie"], testbot)
         self.stop_test_server()
 
+    def test_set_back_to_default_config_overrides(self, testbot):
+        '''Set default config after setting a good one; check doesn't keep working'''
+        self.start_test_server(run_fn)
+        testbot.push_message("""!plugin config HolidayBot {
+        'BAMBOOHR_APIKEY': 'testApikey',
+        'BAMBOOHR_HOST': 'http://localhost:8080',
+        'BAMBOOHR_COMPANY': 'reynholm-industries'}""")
+        check_reply("Plugin configuration done", testbot)
+        testbot.push_message("Is Julie in?")
+        check_reply(["could not find", "Julie"], testbot)
+        
+        testbot.push_message("""!plugin config HolidayBot {
+        'BAMBOOHR_APIKEY': 'changeme',
+        'BAMBOOHR_HOST': 'https://api.bamboohr.com',
+        'BAMBOOHR_COMPANY': 'changeme'}""")
+        check_reply("Plugin configuration done", testbot)
+
+        testbot.push_message("Is Julie in?")
+        check_reply(["Unable to check", "An admin needs to configure credentials"], testbot)
+        self.stop_test_server()
+
     def test_bad_config_can_be_overriden(self, testbot):
         '''So we can't stop err unloading the plugin, but
         this state should at least be recoverable from'''
         # Set a bad config
         testbot.push_message("""!plugin config HolidayBot {
         'BAMBOOHR_APIKEY': 'IchangedYou',
-        'BAMBOOHR_HOST': 'IchangedYou',
+        'BAMBOOHR_HOST': 'https://api.bamboohr.com',
         'BLAH_BLAH_BLAH': 'IchangedYou'}""")
         check_reply("Plugin configuration done", testbot)
         # Plugin should be deactivated
