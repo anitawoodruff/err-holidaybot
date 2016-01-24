@@ -37,6 +37,7 @@ class HolidayBot(BotPlugin):
     def activate(self):
         super().activate()
         config = configparser.ConfigParser()
+        print("environment var = " + os.getenv('HOLIDAY_BOT_TEST_RUN', 'False'))
         if os.getenv('HOLIDAY_BOT_TEST_RUN') == 'True':
             path = './test_credentials.cfg'
             print("Test run detected - loading test credentials")
@@ -45,15 +46,24 @@ class HolidayBot(BotPlugin):
         if (os.path.isfile(path)):
             with open(path) as f:
                 bamboo_config = self.parse_bamboo_credentials(f)
-                self.checker = whosout.WhosOutChecker(
-                    bamboo_config.api_key,
-                    bamboo_config.company,
-                    bamboo_config.host)
+                try:
+                    config = CONFIGURATION_TEMPLATE
+                    config[BAMBOOHR_APIKEY_KEY] = bamboo_config.api_key
+                    config[BAMBOOHR_COMPANY_KEY] = bamboo_config.company
+                    config[BAMBOOHR_HOST_KEY] = bamboo_config.host
+                    self.configure(config)
+                except requests.exceptions.HTTPError:
+                    print("Got an http error with given bamboo hr config")
+                    self.checker = None
             with open(path) as f:
                 hipchat_config = self.parse_hipchat_credentials(f)
-                self.people = self.get_hipchat_users(
-                    hipchat_config.host,
-                    hipchat_config.token)
+                if hipchat_config is not None:
+                    try: 
+                        self.people = self.get_hipchat_users(
+                            hipchat_config.host,
+                            hipchat_config.token)
+                    except requests.exceptions.HTTPError:
+                        print("Got an http error with given hipchat hr config")
         else:
             print ("Could not locate credentials file at " + path)
             self.people = {}
@@ -77,6 +87,8 @@ class HolidayBot(BotPlugin):
     def get_hipchat_users(self, hipchat_host, hipchat_token):
         url = hipchat_host + "/v2/user?auth_token=" + hipchat_token
         response = requests.get(url)
+        if response.status_code != 200:
+            response.raise_for_status()
         return json.loads(response.text)
 
     def get_name_from_mention(self, mention):
@@ -87,17 +99,29 @@ class HolidayBot(BotPlugin):
     def get_configuration_template(self):
         return CONFIGURATION_TEMPLATE
 
+    def configure(self, configuration):
+        super(HolidayBot, self).configure(configuration)
+        self.initialise_checker_from_config_if_possible()
+
     def initialise_checker_from_config_if_possible(self):
         if self.config is None:
+            # self.checker = None
             return
         # Check it has been changed from default
-        for x in self.config:
-            if self.config == CONFIGURATION_TEMPLATE:
-                return
-        self.checker = whosout.WhosOutChecker(
-            self.config[BAMBOOHR_APIKEY_KEY],
-            self.config[BAMBOOHR_COMPANY_KEY],
-            self.config[BAMBOOHR_HOST_KEY])
+        # if self.config == CONFIGURATION_TEMPLATE:
+            # return
+        print("initialising to config: ", self.config)
+        self.initialise_checker_from_config(self.config)
+
+    def initialise_checker_from_config(self, config):
+        try:
+            self.checker = whosout.WhosOutChecker(
+                config[BAMBOOHR_APIKEY_KEY],
+                config[BAMBOOHR_COMPANY_KEY],
+                config[BAMBOOHR_HOST_KEY])
+        except requests.exceptions.HTTPError:
+            print("Got an http error with given config")
+            self.checker = None
 
     @botcmd
     def hello(self, msg, args):
