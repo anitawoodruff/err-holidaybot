@@ -25,6 +25,8 @@ class BambooHrClient(object):
             self._base_url + "time_off/whos_out/?end=" + str(date.today()),
             auth=(self._api_key, 'pass'),
             headers={'Accept': 'application/json'})
+        if response.status_code != 200:
+            response.raise_for_status()
         leaves_json = json.loads(response.text)
         return {x['employeeId']: Leave(self._get_date_from_string(x['start']),
                                        self._get_date_from_string(x['end']))
@@ -35,6 +37,8 @@ class BambooHrClient(object):
         response = requests.get(self._base_url + "employees/directory",
                                 auth=(self._api_key, "pass"),
                                 headers={'Accept': 'application/json'})
+        if response.status_code != 200:
+            response.raise_for_status()
         emps_json = json.loads(response.text)['employees']
         return {int(e['id']): Employee(e['displayName'],
                                        e['firstName'],
