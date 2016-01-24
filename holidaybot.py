@@ -34,8 +34,8 @@ HipchatConfig = namedtuple("HipchatConfig", "host token")
 class HolidayBot(BotPlugin):
     """Plugin for querying who is on leave right now"""
 
-    def __init__(self):
-        super(HolidayBot, self).__init__()
+    def activate(self):
+        super().activate()
         config = configparser.ConfigParser()
         if os.getenv('HOLIDAY_BOT_TEST_RUN') == 'True':
             path = './test_credentials.cfg'
