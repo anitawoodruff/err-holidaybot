@@ -1,6 +1,6 @@
 # err-holidaybot
 
-An [errbot](http://errbot.net/) plugin for querying whether colleagues are on leave using the [BambooHR API](http://www.bamboohr.com/api/documentation/).
+A python3 [errbot](http://errbot.net/) plugin for querying whether colleagues are on leave using the [BambooHR API](http://www.bamboohr.com/api/documentation/).
 
 Also contains a standalone Python3 script for querying who's out directly from command line, without the need for a bot.
 
