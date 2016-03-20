@@ -10,6 +10,7 @@ from unidecode import unidecode
 def _normalise_name(name):
     if isinstance(name, str):
         name = unidecode(name)
+        name = name.replace("-", "")
     return name.lower()
 
 class WhosOutChecker(object):

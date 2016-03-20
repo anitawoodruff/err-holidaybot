@@ -30,11 +30,15 @@ class TestWhosout(unittest.TestCase):
         self.assertEqual(frozenset(expected), frozenset(timeoffs))
 
     def test_where_is(self):
-        ### TODO : Add test case for multiple employees with the same name
         whereabouts = self.checker.where_is('Sarah')
         expected = [(Employee('Sarah Surely', 'Sarah', 'Surely', None),
                      Leave(date(2015, 5, 4), date(2015, 5, 4)))]
         self.assertEqual(frozenset(expected), frozenset(whereabouts))
+
+    def test_where_is_hyphen_omitted_matches_name(self):
+        whereabouts = self.checker.where_is('maryjane')
+        expected = {(Employee('Mary-Jane Spiderman', 'Mary-Jane', 'Spiderman', 'M-J'), None)}
+        self.assertSetEqual(expected, frozenset(whereabouts))
 
     def test_where_is_unknown(self):
         result = self.checker.where_is("Polly")
@@ -90,7 +94,12 @@ def directory_request_handler():
      "displayName": "Barry Smith",
      "firstName": "Barry",
      "lastName": "Smith",
-     "nickname": null}
+     "nickname": null},
+    {"id": "003",
+     "displayName": "Mary-Jane Spiderman",
+     "firstName": "Mary-Jane",
+     "lastName": "Spiderman",
+     "nickname": "M-J"}
     ]}"""
 
 @route("/api/gateway.php/" + TEST_COMPANY + "/v1/time_off/whos_out/")
